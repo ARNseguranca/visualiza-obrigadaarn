@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brigada de Plantão - Nascentes (Painel)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* palette derived from the marca image */
+    --brand-blue-900: #000000;
+    --brand-blue-700: #000000fe;
+    --brand-blue-500: #000000;
+    --brand-gray-600: #9aa3a9;
+    --bg-dark: #bcd3f5;
+    --glass: rgb(255, 255, 255);
+    --card: rgb(255, 255, 255);
+    --accent: var(--brand-blue-700);
+    --radius: 14px;
+    --gap: 18px;
+    --slide-ms: 4500;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#ffffff 0%, #ffffff 60%);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--brand-gray-600)}
+  .panel{width:100vw;height:100vh;display:flex;flex-direction:column;padding:28px;box-sizing:border-box;gap:18px}
+
+  header.big{display:flex;align-items:center;gap:20px}
+  .logo-wrap{display:flex;align-items:center;gap:16px}
+  .logo{width:160px;height:56px;display:block}
+  .title-wrap{display:flex;flex-direction:column}
+  .title{font-size:clamp(26px,3.5vw,40px);color:rgb(0, 0, 0);font-weight:800;line-height:1}
+  .subtitle{color:var(--brand-gray-600);font-weight:700}
+
+  .meta-right{margin-left:auto;text-align:right}
+  .meta-right .now{font-weight:800;color:var(--brand-blue-500);font-size:18px}
+  .meta-right .next{color:var(--brand-gray-600);font-size:14px}
+
+  /* small gamepad icon */
+  .game-icon{width:54px;height:54px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,var(--brand-blue-700),var(--brand-blue-500));}
+  .game-icon svg{width:34px;height:34px;opacity:0.95}
+
+  /* slideshow */
+  .slideshow{flex:1;position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--glass);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));}
+  .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px;transition:opacity .8s ease,transform .8s ease;opacity:0;transform:scale(.98);pointer-events:none}
+  .slide.show{opacity:1;transform:scale(1);pointer-events:auto}
+
+  .card-large{width:min(1100px,94%);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:26px;display:flex;gap:22px;align-items:center;border:1px solid rgba(255,255,255,0.02);box-shadow:0 18px 50px rgba(2,6,23,0.6)}
+  .photo{width:260px;height:260px;border-radius:12px;overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-weight:900;color:rgb(3, 3, 3);background:linear-gradient(135deg,var(--brand-blue-700),var(--brand-blue-500));font-size:72px}
+  .photo img{width:100%;height:100%;object-fit:cover}
+  .info{flex:1;display:flex;flex-direction:column;gap:6px}
+  .info h2{margin:0;font-size:56px;color:rgb(0, 0, 0);font-weight:900}
+  .info .role{color:var(--brand-gray-600);font-weight:700}
+  .badges{display:flex;gap:10px;margin-top:8px}
+  .badge{padding:8px 12px;border-radius:999px;color:white;font-weight:800;font-size:14px}
+  .badge.coordenador{background:linear-gradient(90deg,#d0f13d,#9edd2a);color:#111}
+  .badge.subcoordenador{background:linear-gradient(90deg,#f59e0b,#f97316);color:#111}
+  .badge.charlie{background:linear-gradient(90deg,#f59e0b,#f97316);color:#111}
+  .badge.delta{background:linear-gradient(90deg,#ef4444,#dc2626)}
+  .badge.alfa{background:linear-gradient(90deg,#2c7fe3,#2c7fe3)}
+  .badge.bravo{background:linear-gradient(90deg,#10b981,#059669)}
+
+  footer.ticker{display:flex;align-items:center;gap:12px;color:var(--brand-gray-600);font-weight:700;font-size:14px}
+
+  @media(max-width:900px){
+    .card-large{flex-direction:column;align-items:center;text-align:center;padding:18px}
+    .photo{width:160px;height:160px;font-size:36px}
+    .info h2{font-size:28px}
+  }
+</style>
+</head>
+<body>
+  <div class="panel" role="application" aria-label="Painel Brigadistas Fullscreen">
+    <header class="big" role="banner">
+      <div class="logo-wrap">
+        <img class="logo" src="imag4.png" alt="Nascentes">
+        <div class="title-wrap">
+          <div class="title">Brigada de Plantão - Nascentes</div>
+          <div class="subtitle" id="subtitle">Carregando plantão...</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px" class="meta-right">
+        <div class="game-icon" title="Painel divertido">
+          <!-- gamepad SVG desenho -->
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M5 9C4 9 3 10 3 11v1c0 1 1 2 2 2h2l1 1h6l1-1h2c1 0 2-1 2-2v-1c0-1-1-2-2-2H5z" fill="white" opacity="0.06"/>
+            <path d="M7.5 12a1 1 0 100-2 1 1 0 000 2z" fill="white"/>
+            <path d="M10 11.5h1v1h-1zM11.5 11h1v1h-1z" fill="white"/>
+            <path d="M12 6.5c-3.5 0-4.5 1.75-5 2.75C6.5 10 6 11 6 12.5S6.5 15 8.5 15h7c2 0 2.5-2 2.5-3.5S17.5 8 12 8z" fill="white" opacity="0.08"/>
+          </svg>
+        </div>
+        <div>
+          <div class="now" id="nowLabel">--:--</div>
+          <div class="next" id="nextLabel">Próximo: —</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="slideshow" id="slideshow" role="main" aria-live="polite">
+      <!-- slides serão gerados pelo script -->
+    </main>
+
+    <footer class="ticker" role="contentinfo">
+      <div id="footerNote">Painel automático — mostra brigadistas do plantão atual e coordenadores.</div>
+    </footer>
+  </div>
+
+<script>
+/* =========================
+   Config & helpers
+   ========================= */
+const BASE_URL = 'https://script.google.com/macros/s/AKfycbxQ5B7NV52JHLfBwLmcHY4HuUVcroo4HXBlCkjW5v_1mWadDnjHn2Hu-24hcZ7KDOYi/exec';
+let DATA = [];
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'})[ch]); }
+function initials(name){ return (name||'').split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()||'').join(''); }
+function photoFromRaw(r){ let raw = (r && (r.photoBase64 || r.photobase64 || r.photo || r.photo_base64 || r.image || r.foto || r.photobase)) || ''; raw = raw && String(raw).trim() || ''; if(!raw) return ''; if(raw.startsWith('data:')) return raw; if(/^https?:\/\//i.test(raw) || raw.startsWith('/')) return raw; return 'data:image/png;base64,' + raw; }
+
+function normalizePlantao(raw){ const s = (raw||'').toString().trim().toLowerCase(); if(!s) return { key:'', display:'' }; if(s.includes('alfa')) return { key:'alfa', display:'Alfa' }; if(s.includes('bravo')) return { key:'bravo', display:'Bravo' }; if(s.includes('charlie')||s.includes('charli')) return { key:'charlie', display:'Charlie' }; if(s.includes('delta')) return { key:'delta', display:'Delta' }; if(s.includes('coordenador')) return { key:'coordenador', display:'COORDENADOR(A) DA BRIGADA' }; if(s.includes('subcoordenador')||s.includes('sub-coordenador')) return { key:'subcoordenador', display:'SUBCOORDENADOR(A) DA BRIGADA' }; const display = raw.toString().trim(); const key = display.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); return { key, display }; }
+
+/* =========================
+   Schedule logic (mesma lógica pedida)
+   ========================= */
+function getCurrentShift(now = new Date()){
+  function localDate(Y,M,D,h,m=0,s=0){return new Date(Y,M,D,h,m,s,0);} 
+  const Y = now.getFullYear(), M = now.getMonth(), D = now.getDate();
+  const t0 = localDate(Y,M,D,0,0,0);
+  const today18 = localDate(Y,M,D,18,0,0);
+  const tomorrow = new Date(t0.getTime() + 24*3600*1000);
+  const tomorrow06 = localDate(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 6,0,0);
+  const tomorrow18 = localDate(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 18,0,0);
+  const dayAfter = new Date(tomorrow.getTime() + 24*3600*1000);
+  const dayAfter07 = localDate(dayAfter.getFullYear(), dayAfter.getMonth(), dayAfter.getDate(), 7,0,0);
+
+  const segs = [
+    { key:'charlie', display:'Charlie', start: t0, end: today18 },
+    { key:'delta', display:'Delta', start: today18, end: tomorrow06 },
+    { key:'alfa', display:'Alfa', start: tomorrow06, end: tomorrow18 },
+    { key:'bravo', display:'Bravo', start: tomorrow18, end: dayAfter07 }
+  ];
+
+  const cycleStart = segs[0].start.getTime();
+  const cycleEnd = segs[segs.length-1].end.getTime();
+  const cycleLen = cycleEnd - cycleStart;
+  const nowT = now.getTime();
+  const k = Math.floor((nowT - cycleStart) / cycleLen);
+  for(let deltaK=0; deltaK<=2; deltaK++){
+    const kk = k + deltaK;
+    for(const seg of segs){
+      const s = new Date(seg.start.getTime() + kk*cycleLen);
+      const e = new Date(seg.end.getTime() + kk*cycleLen);
+      if(nowT >= s.getTime() && nowT < e.getTime()) return { key:seg.key, display:seg.display, start:s, end:e };
+    }
+  }
+  const fallbackEnd = today18 > now ? today18 : new Date(now.getTime() + 1000*60*60*6);
+  return { key:'charlie', display:'Charlie', start: now, end: fallbackEnd };
+}
+
+/* =========================
+   Slideshow UI (apenas foto + nome)
+   ========================= */
+const slideshow = $('#slideshow');
+let slideIndex = 0; let slideTimer = null; const SLIDE_MS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slide-ms')) || 4500;
+
+function buildSlides(list){ slideshow.innerHTML = ''; if(!list || list.length===0){ const empty = document.createElement('div'); empty.className='slide show'; empty.innerHTML = `<div style="color:var(--brand-gray-600);font-weight:800;font-size:28px">Nenhum brigadista no plantão atual</div>`; slideshow.appendChild(empty); return; }
+  list.forEach((person, idx)=>{
+    const s = document.createElement('section'); s.className='slide'+(idx===0? ' show':''); s.dataset.index = idx;
+    s.innerHTML = `
+      <div class="card-large" role="article" aria-label="${escapeHtml(person.nome)}">
+        <div class="photo">${person.photo? `<img src="${person.photo}" alt="${escapeHtml(person.nome)}">` : escapeHtml(initials(person.nome))}</div>
+        <div class="info">
+          <h2>${escapeHtml(person.nome||'—')}</h2>
+          <div class="role">${escapeHtml(person.cargo||'')}</div>
+          <div class="badges">
+            ${person.plantaoDisplay? `<span class="badge ${escapeHtml(person.plantaoKey)}">${escapeHtml(person.plantaoDisplay)}</span>` : ''}
+            ${person.isCoordenador? `<span class="badge coordenador">COORDENADOR(A)</span>` : ''}
+            ${person.isSubcoordenador? `<span class="badge subcoordenador">SUBCOORDENADOR(A)</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    slideshow.appendChild(s);
+  });
+}
+
+function showSlide(i){ const slides = $$('.slide'); if(slides.length===0) return; slides.forEach(x=>x.classList.remove('show')); const idx = ((i%slides.length)+slides.length)%slides.length; slides[idx].classList.add('show'); slideIndex = idx; }
+function startAutoRotate(){ clearInterval(slideTimer); slideTimer = setInterval(()=> showSlide(slideIndex+1), SLIDE_MS); }
+
+/* =========================
+   Data fetch + map
+   ========================= */
+async function fetchDataAndStart(){
+  try{
+    const url = new URL(BASE_URL); url.searchParams.set('action','list');
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json = await res.json();
+    const arr = Array.isArray(json)? json : (json && (json.data||json.items) ? (json.data||json.items) : []);
+    const mapped = (arr||[]).map(r=>{
+      const photo = photoFromRaw(r);
+      const plantaoRaw = (r.plantao||r.plantão||r.shift||'').toString().trim();
+      const normalized = normalizePlantao(plantaoRaw);
+      return {
+        id: r.id||r.ID||'',
+        nome: r.nome||r.name||'',
+        cargo: r.cargo||r.funcao||r.role||'',
+        observacoes: r.observacoes||r.obs||'',
+        plantaoRaw,
+        plantaoKey: normalized.key,
+        plantaoDisplay: normalized.display,
+        photo,
+        isCoordenador: (normalized.key==='coordenador'),
+        isSubcoordenador: (normalized.key==='subcoordenador')
+      };
+    });
+    DATA = mapped;
+    refreshPanel();
+  }catch(err){ console.error(err); slideshow.innerHTML = `<div class="slide show"><div style="color:var(--danger);font-weight:800;font-size:22px;padding:30px">Erro ao carregar dados: ${escapeHtml(err.message||'desconhecido')}</div></div>`; }
+}
+
+function getPlantaoPeople(currentKey){ const list = DATA.filter(p=>{ if(!p) return false; if(p.plantaoKey && p.plantaoKey===currentKey) return true; if(p.plantaoKey==='coordenador' || p.plantaoKey==='subcoordenador') return true; const cargoLower = (p.cargo||'').toLowerCase(); if(cargoLower.includes('coordenador')) return true; return false; }); const seen = new Set(); const uniq = []; for(const p of list){ const key = (p.nome||'') + '|' + (p.photo||''); if(!seen.has(key)){ seen.add(key); uniq.push(p); } } return uniq.length? uniq : DATA.slice(0,8); }
+
+function updateHeader(currentShift){ const now = new Date(); const end = currentShift.end; const endFmt = end? end.toLocaleString() : '—'; $('#subtitle').textContent = `Plantão atual: ${currentShift.display} — encerra em ${endFmt}`; $('#nowLabel').textContent = now.toLocaleTimeString(); const nextKey = (currentShift.key==='charlie')? 'delta' : (currentShift.key==='delta')? 'alfa' : (currentShift.key==='alfa')? 'bravo' : (currentShift.key==='bravo')? 'charlie' : '—'; $('#nextLabel').textContent = `Próximo: ${nextKey.toUpperCase()} (${currentShift.end? currentShift.end.toLocaleString() : '—'})`; }
+
+function refreshPanel(){ const now = new Date(); const current = getCurrentShift(now); updateHeader(current); const people = getPlantaoPeople(current.key); people.forEach(p=>{ p.isCoordenador = (p.plantaoKey==='coordenador' || (p.cargo||'').toLowerCase().includes('coordenador')); p.isSubcoordenador = (p.plantaoKey==='subcoordenador' || (p.cargo||'').toLowerCase().includes('subcoordenador')); }); people.sort((a,b)=>{ const pa = a.isCoordenador||a.isSubcoordenador ? 0 : 1; const pb = b.isCoordenador||b.isSubcoordenador ? 0 : 1; if(pa!==pb) return pa-pb; return (a.nome||'').localeCompare(b.nome||''); }); buildSlides(people); showSlide(0); startAutoRotate(); }
+
+setInterval(()=>{ $('#nowLabel').textContent = new Date().toLocaleTimeString(); const now = new Date(); const current = getCurrentShift(now); const subtitleText = $('#subtitle').textContent || ''; const expected = current.end? `encerra em ${current.end.toLocaleString()}` : ''; if(!subtitleText.includes(expected)) refreshPanel(); },15000);
+
+/* start */
+fetchDataAndStart();
+
+/* tentar fullscreen */
+setTimeout(()=>{ try{ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); }catch(e){} },900);
+
+</script>
+</body>
+</html>
