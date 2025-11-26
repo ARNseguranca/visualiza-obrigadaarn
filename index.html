@@ -1,291 +1,704 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Brigada de Plantão - Nascentes (Painel)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --brand-blue-900: #000000;
-    --brand-blue-700: #000000fe;
-    --brand-blue-500: #000000;
-    --brand-gray-600: #9aa3a9;
-    --bg-dark: #bcd3f5;
-    --glass: rgb(255, 255, 255);
-    --card: rgb(255, 255, 255);
-    --accent: var(--brand-blue-700);
-    --radius: 14px;
-    --gap: 18px;
-    --slide-ms: 4500;
-  }
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,#ffffff 0%, #ffffff 60%);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--brand-gray-600)}
-  .panel{width:100vw;height:100vh;display:flex;flex-direction:column;padding:28px;box-sizing:border-box;gap:18px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brigada de Plantão - Nascentes</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== CORES DA LOGO (ajuste conforme sua logo) ===== */
+        :root {
+            --primary: #1a4d7d;        /* Azul marinho da logo */
+            --primary-light: #2563eb;  /* Azul claro */
+            --secondary: #0f766e;      /* Verde/turquesa */
+            --accent: #f59e0b;         /* Laranja/amarelo */
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+        }
 
-  header.big{display:flex;align-items:center;gap:20px}
-  .logo-wrap{display:flex;align-items:center;gap:16px}
-  .logo{width:160px;height:56px;display:block}
-  .title-wrap{display:flex;flex-direction:column}
-  .title{font-size:clamp(26px,3.5vw,40px);color:rgb(0, 0, 0);font-weight:800;line-height:1}
-  .subtitle{color:var(--brand-gray-600);font-weight:700}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  .meta-right{margin-left:auto;text-align:right}
-  .meta-right .now{font-weight:800;color:var(--brand-blue-500);font-size:18px}
-  .meta-right .next{color:var(--brand-gray-600);font-size:14px}
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--light-bg);
+            color: var(--dark);
+        }
 
-  .game-icon{width:54px;height:54px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,var(--brand-blue-700),var(--brand-blue-500));}
-  .game-icon svg{width:34px;height:34px;opacity:0.95}
+        /* ===== LAYOUT PRINCIPAL ===== */
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 20px;
+        }
 
-  .slideshow{flex:1;position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--glass);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));}
-  .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px;transition:opacity .8s ease,transform .8s ease;opacity:0;transform:scale(.98);pointer-events:none}
-  .slide.show{opacity:1;transform:scale(1);pointer-events:auto}
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
 
-  .card-large{width:min(1100px,94%);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:26px;display:flex;gap:22px;align-items:center;border:1px solid rgba(255,255,255,0.02);box-shadow:0 18px 50px rgba(2,6,23,0.6)}
-  .photo{width:260px;height:260px;border-radius:12px;overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-weight:900;color:rgb(3, 3, 3);background:linear-gradient(135deg,var(--brand-blue-700),var(--brand-blue-500));font-size:72px}
-  .photo img{width:100%;height:100%;object-fit:cover}
-  .info{flex:1;display:flex;flex-direction:column;gap:6px}
-  .info h2{margin:0;font-size:56px;color:rgb(0, 0, 0);font-weight:900}
-  .info .role{color:var(--brand-gray-600);font-weight:700}
-  .badges{display:flex;gap:10px;margin-top:8px}
-  .badge{padding:8px 12px;border-radius:999px;color:white;font-weight:800;font-size:14px}
-  .badge.coordenador{background:linear-gradient(90deg,#d0f13d,#9edd2a);color:#111}
-  .badge.subcoordenador{background:linear-gradient(90deg,#f59e0b,#f97316);color:#111}
-  .badge.charlie{background:linear-gradient(90deg,#f59e0b,#f97316);color:#111}
-  .badge.delta{background:linear-gradient(90deg,#ef4444,#dc2626)}
-  .badge.alfa{background:linear-gradient(90deg,#2c7fe3,#2c7fe3)}
-  .badge.bravo{background:linear-gradient(90deg,#10b981,#059669)}
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-  footer.ticker{display:flex;align-items:center;gap:12px;color:var(--brand-gray-600);font-weight:700;font-size:14px}
+        .logo {
+            height: 64px;
+            width: auto;
+        }
 
-  @media(max-width:900px){
-    .card-large{flex-direction:column;align-items:center;text-align:center;padding:18px}
-    .photo{width:160px;height:160px;font-size:36px}
-    .info h2{font-size:28px}
-  }
-</style>
+        .header-title h1 {
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: clamp(13px, 1.5vw, 16px);
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .clock {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 800;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+        }
+
+        .shift-info {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 20px;
+            font-size: clamp(12px, 1.2vw, 14px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown {
+            font-size: clamp(11px, 1vw, 13px);
+            color: var(--gray);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* ===== SLIDESHOW ===== */
+        .slideshow {
+            flex: 1;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* ===== CARD BRIGADISTA ===== */
+        .card {
+            width: min(1000px, 100%);
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .photo {
+            width: 280px;
+            height: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            font-weight: 900;
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info h2 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1.1;
+        }
+
+        .info .role {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: clamp(12px, 1.2vw, 14px);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge.coordenador {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .badge.subcoordenador {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .badge.alfa {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .badge.bravo {
+            background: var(--primary-light);
+            color: var(--white);
+        }
+
+        .badge.charlie {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .badge.delta {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-text {
+            font-size: clamp(12px, 1.2vw, 14px);
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .indicators {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray);
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            width: 28px;
+            border-radius: 5px;
+            background: var(--primary);
+            opacity: 1;
+        }
+
+        /* ===== BOTÃO FULLSCREEN ===== */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            color: var(--white);
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .fullscreen-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 9999;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(26, 77, 125, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .container {
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-left,
+            .header-right {
+                width: 100%;
+            }
+
+            .header-right {
+                text-align: center;
+            }
+
+            .card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .photo {
+                width: 200px;
+                height: 200px;
+                font-size: 60px;
+            }
+
+            .badges {
+                justify-content: center;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 20px;
+            }
+
+            .fullscreen-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="panel" role="application" aria-label="Painel Brigadistas Fullscreen">
-    <header class="big" role="banner">
-      <div class="logo-wrap">
-        <img class="logo" src="imag4.png" alt="Nascentes">
-        <div class="title-wrap">
-          <div class="title">Brigada de Plantão - Nascentes</div>
-          <div class="subtitle" id="subtitle">Carregando plantão...</div>
-        </div>
-      </div>
+    <!-- LOADING -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Carregando dados...</div>
+    </div>
 
-      <div style="display:flex;align-items:center;gap:12px" class="meta-right">
-        <div class="game-icon" title="Painel divertido">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M5 9C4 9 3 10 3 11v1c0 1 1 2 2 2h2l1 1h6l1-1h2c1 0 2-1 2-2v-1c0-1-1-2-2-2H5z" fill="white" opacity="0.06"/>
-            <path d="M7.5 12a1 1 0 100-2 1 1 0 000 2z" fill="white"/>
-            <path d="M10 11.5h1v1h-1zM11.5 11h1v1h-1z" fill="white"/>
-            <path d="M12 6.5c-3.5 0-4.5 1.75-5 2.75C6.5 10 6 11 6 12.5S6.5 15 8.5 15h7c2 0 2.5-2 2.5-3.5S17.5 8 12 8z" fill="white" opacity="0.08"/>
-          </svg>
-        </div>
-        <div>
-          <div class="now" id="nowLabel">--:--</div>
-          <div class="next" id="nextLabel">Próximo: —</div>
-        </div>
-      </div>
-    </header>
+    <!-- CONTAINER -->
+    <div class="container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <img class="logo" src="imag4.png" alt="Nascentes" onerror="this.style.display='none'">
+                <div class="header-title">
+                    <h1>Brigada de Plantão - Nascentes</h1>
+                    <p id="shiftDescription">Carregando informações...</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="clock" id="clock">--:--:--</div>
+                <div class="shift-info" id="shiftBadge">CARREGANDO</div>
+                <div class="countdown" id="countdown">Calculando...</div>
+            </div>
+        </header>
 
-    <main class="slideshow" id="slideshow" role="main" aria-live="polite"></main>
+        <!-- SLIDESHOW -->
+        <main class="slideshow" id="slideshow">
+            <!-- Slides inseridos aqui -->
+        </main>
 
-    <footer class="ticker" role="contentinfo">
-      <div id="footerNote">Painel automático — mostra brigadistas do plantão atual e coordenadores.</div>
-    </footer>
-  </div>
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="footer-text">
+                🚨 Painel automático - Atualizado em tempo real
+            </div>
+            <div class="indicators" id="indicators">
+                <!-- Dots inseridos aqui -->
+            </div>
+        </footer>
+    </div>
 
-<script>
-/* =========================
-   Config & helpers
-   ========================= */
-const BASE_URL = 'https://script.google.com/macros/s/AKfycbxQ5B7NV52JHLfBwLmcHY4HuUVcroo4HXBlCkjW5v_1mWadDnjHn2Hu-24hcZ7KDOYi/exec';
-let DATA = [];
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
+    <!-- BOTÃO FULLSCREEN -->
+    <button class="fullscreen-btn" id="fullscreenBtn" title="Tela cheia">⛶</button>
 
-function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'})[ch]); }
-function initials(name){ return (name||'').split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()||'').join(''); }
-function photoFromRaw(r){
-  let raw = '';
-  if(!r) return '';
-  // suportar várias chaves possíveis, incluindo com acento
-  raw = (r.photo || r.photoBase64 || r.photobase64 || r.photo_base64 || r.image || r.foto || r.photobase || r['photo'] || r['photoBase64'] || r['photobase64'] || r['photo_base64'] || r['image'] || r['foto'] || r['photobase'] || r['foto_base64'] || r['photo64']) || '';
-  raw = raw && String(raw).trim() || '';
-  if(!raw) return '';
-  if(raw.startsWith('data:')) return raw;
-  if(/^https?:\/\//i.test(raw) || raw.startsWith('/')) return raw;
-  return 'data:image/png;base64,' + raw;
-}
+    <script>
+        'use strict';
 
-function normalizePlantao(raw){
-  const s = (raw||'').toString().trim().toLowerCase();
-  if(!s) return { key:'', display:'' };
-  // checar palavras-chave mais comuns primeiro
-  if(s.includes('alfa')) return { key:'alfa', display:'Alfa' };
-  if(s.includes('bravo')) return { key:'bravo', display:'Bravo' };
-  if(s.includes('charlie')) return { key:'charlie', display:'Charlie' };
-  if(s.includes('delta')) return { key:'delta', display:'Delta' };
-  if(s.includes('coordenador')) return { key:'coordenador', display:'COORDENADOR(A) DA BRIGADA' };
-  if(s.includes('subcoordenador')) return { key:'subcoordenador', display:'SUBCOORDENADOR(A) DA BRIGADA' };
-  const display = raw.toString().trim();
-  const key = display.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  return { key, display };
-}
+        /* ===== CONFIG ===== */
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxQ5B7NV52JHLfBwLmcHY4HuUVcroo4HXBlCkjW5v_1mWadDnjHn2Hu-24hcZ7KDOYi/exec';
+        const SLIDE_DURATION = 5000;
 
-/* =========================
-   Schedule logic
-   - 4 segmentos de 6h cada:
-     00:00-06:00 -> Charlie
-     06:00-12:00 -> Delta
-     12:00-18:00 -> Alfa   <- seu caso: meio-dia -> ALFA
-     18:00-24:00 -> Bravo
-   ========================= */
-function getCurrentShift(now = new Date()){
-  function localDate(Y,M,D,h,m=0,s=0){return new Date(Y,M,D,h,m,s,0);}
-  const Y = now.getFullYear(), M = now.getMonth(), D = now.getDate();
-  const t0 = localDate(Y,M,D,0,0,0);
-  const segs = [
-    { key:'charlie', display:'Charlie', start: localDate(Y,M,D,0,0,0), end: localDate(Y,M,D,6,0,0) },
-    { key:'delta', display:'Delta', start: localDate(Y,M,D,6,0,0), end: localDate(Y,M,D,12,0,0) },
-    { key:'alfa', display:'Alfa', start: localDate(Y,M,D,12,0,0), end: localDate(Y,M,D,18,0,0) },
-    { key:'bravo', display:'Bravo', start: localDate(Y,M,D,18,0,0), end: new Date(t0.getTime() + 24*3600*1000) }
-  ];
+        let DATA = [];
+        let currentSlide = 0;
+        let slideTimer = null;
 
-  const nowT = now.getTime();
-  // procurar no dia atual
-  for(const seg of segs){
-    const s = seg.start.getTime();
-    const e = seg.end.getTime();
-    if(nowT >= s && nowT < e) return { key: seg.key, display: seg.display, start: new Date(s), end: new Date(e) };
-  }
-  // se não encontrou (por segurança), buscar nos dias adjacentes
-  for(let delta=-1; delta<=1; delta++){
-    const dayBase = new Date(t0.getTime() + delta*24*3600*1000);
-    const Y2 = dayBase.getFullYear(), M2 = dayBase.getMonth(), D2 = dayBase.getDate();
-    const segs2 = [
-      { key:'charlie', display:'Charlie', start: localDate(Y2,M2,D2,18,0,0), end: localDate(Y2,M2,D2,6,0,0) },
-      { key:'delta', display:'Delta', start: localDate(Y2,M2,D2,6,0,0), end: localDate(Y2,M2,D2,18,0,0) },
-      { key:'alfa', display:'Alfa', start: localDate(Y2,M2,D2,6,0,0), end: localDate(Y2,M2,D2,18,0,0) },
-      { key:'bravo', display:'Bravo', start: localDate(Y2,M2,D2,18,0,0), end: new Date(localDate(Y2,M2,D2,6,0,0).getTime() + 24*3600*1000) }
-    ];
-    for(const seg of segs2){
-      const s = seg.start.getTime(), e = seg.end.getTime();
-      if(nowT >= s && nowT < e) return { key: seg.key, display: seg.display, start: new Date(s), end: new Date(e) };
-    }
-  }
-  // fallback
-  const fallbackEnd = new Date(now.getTime() + 1000*60*60*6);
-  return { key:'alfa', display:'Alfa', start: now, end: fallbackEnd };
-}
+        /* ===== HELPERS ===== */
+        const $ = (s) => document.querySelector(s);
+        const esc = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+        const initials = (n) => (n || '').split(/\s+/).slice(0, 2).map(p => (p[0] || '').toUpperCase()).join('');
 
-/* =========================
-   Slideshow UI (foto + nome)
-   ========================= */
-const slideshow = $('#slideshow');
-let slideIndex = 0; let slideTimer = null; const SLIDE_MS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slide-ms')) || 4500;
+        /* ===== PLANTÃO: ALFA 06:00-18:00 ===== */
+        function getCurrentShift() {
+            const now = new Date();
+            const hour = now.getHours();
+            const Y = now.getFullYear();
+            const M = now.getMonth();
+            const D = now.getDate();
 
-function buildSlides(list){ slideshow.innerHTML = ''; if(!list || list.length===0){ const empty = document.createElement('div'); empty.className='slide show'; empty.innerHTML = `<div style="color:var(--brand-gray-600);font-weight:800;font-size:28px">Nenhum brigadista no plantão atual</div>`; slideshow.appendChild(empty); return; }
-  list.forEach((person, idx)=>{
-    const s = document.createElement('section'); s.className='slide'+(idx===0? ' show':''); s.dataset.index = idx;
-    s.innerHTML = `
-      <div class="card-large" role="article" aria-label="${escapeHtml(person.nome)}">
-        <div class="photo">${person.photo? `<img src="${person.photo}" alt="${escapeHtml(person.nome)}">` : escapeHtml(initials(person.nome))}</div>
-        <div class="info">
-          <h2>${escapeHtml(person.nome||'—')}</h2>
-          <div class="role">${escapeHtml(person.cargo||'')}</div>
-          <div class="badges">
-            ${person.plantaoDisplay? `<span class="badge ${escapeHtml(person.plantaoKey)}">${escapeHtml(person.plantaoDisplay)}</span>` : ''}
-           
-          </div>
-        </div>
-      </div>
-    `;
-    slideshow.appendChild(s);
-  });
-}
+            // ALFA: 06:00 - 18:00
+            if (hour >= 6 && hour < 18) {
+                return {
+                    key: 'alfa',
+                    name: 'Alfa',
+                    start: new Date(Y, M, D, 6, 0, 0),
+                    end: new Date(Y, M, D, 18, 0, 0)
+                };
+            }
 
-function showSlide(i){ const slides = $$('.slide'); if(slides.length===0) return; slides.forEach(x=>x.classList.remove('show')); const idx = ((i%slides.length)+slides.length)%slides.length; slides[idx].classList.add('show'); slideIndex = idx; }
-function startAutoRotate(){ clearInterval(slideTimer); slideTimer = setInterval(()=> showSlide(slideIndex+1), SLIDE_MS); }
+            // BRAVO: 18:00 - 06:00 (próximo dia)
+            if (hour >= 18) {
+                return {
+                    key: 'bravo',
+                    name: 'Bravo',
+                    start: new Date(Y, M, D, 18, 0, 0),
+                    end: new Date(Y, M, D + 1, 6, 0, 0)
+                };
+            }
 
-/* =========================
-   Data fetch + map
-   ========================= */
-async function fetchDataAndStart(){
-  try{
-    const url = new URL(BASE_URL); url.searchParams.set('action','list');
-    const res = await fetch(url.toString(), { cache: 'no-store' });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const json = await res.json();
-    const arr = Array.isArray(json)? json : (json && (json.data||json.items) ? (json.data||json.items) : []);
-    const mapped = (arr||[]).map(r=>{
-      const photo = photoFromRaw(r);
-      // suportar chaves com e sem acento
-      const plantaoRaw = ( (r.plantao || r['plantao'] || r['plantão'] || r['plantao_raw'] || r.shift || '') ).toString().trim();
-      const normalized = normalizePlantao(plantaoRaw);
-      return {
-        id: r.id||r.ID||'',
-        nome: r.nome||r.name||'',
-        cargo: r.cargo||r.funcao||r.role||'',
-        observacoes: r.observacoes||r.obs||'',
-        plantaoRaw,
-        plantaoKey: normalized.key,
-        plantaoDisplay: normalized.display,
-        photo,
-        isCoordenador: (normalized.key==='coordenador'),
-        isSubcoordenador: (normalized.key==='subcoordenador')
-      };
-    });
-    DATA = mapped;
-    refreshPanel();
-  }catch(err){ console.error(err); slideshow.innerHTML = `<div class="slide show"><div style="color:var(--danger);font-weight:800;font-size:22px;padding:30px">Erro ao carregar dados: ${escapeHtml(err.message||'desconhecido')}</div></div>`; }
-}
+            // BRAVO: 00:00 - 06:00
+            return {
+                key: 'bravo',
+                name: 'Bravo',
+                start: new Date(Y, M, D - 1, 18, 0, 0),
+                end: new Date(Y, M, D, 6, 0, 0)
+            };
+        }
 
-function getPlantaoPeople(currentKey){
-  const list = DATA.filter(p=>{
-    if(!p) return false;
-    if(p.plantaoKey && p.plantaoKey===currentKey) return true;
-    if(p.plantaoKey==='coordenador' || p.plantaoKey==='subcoordenador') return true;
-    const cargoLower = (p.cargo||'').toLowerCase();
-    if(cargoLower.includes('coordenador')) return true;
-    return false;
-  });
-  const seen = new Set(); const uniq = [];
-  for(const p of list){ const key = (p.nome||'') + '|' + (p.photo||''); if(!seen.has(key)){ seen.add(key); uniq.push(p); } }
-  return uniq.length? uniq : DATA.slice(0,8);
-}
+        /* ===== ATUALIZAR HEADER ===== */
+        function updateHeader() {
+            const now = new Date();
+            const shift = getCurrentShift();
 
-function updateHeader(currentShift){
-  const now = new Date(); const end = currentShift.end;
-  const endFmt = end? end.toLocaleString() : '—';
-  $('#subtitle').textContent = `Plantão atual: ${currentShift.display} — encerra em ${endFmt}`;
-  $('#nowLabel').textContent = now.toLocaleTimeString();
-  // calcular próximo simples (ordem fixa)
-  const order = ['charlie','delta','alfa','bravo'];
-  const idx = order.indexOf(currentShift.key);
-  const nextKey = order[(idx+1) % order.length] || '—';
-  $('#nextLabel').textContent = `Próximo: ${nextKey.toUpperCase()} (${currentShift.end? currentShift.end.toLocaleString() : '—'})`;
-}
+            // Relógio
+            $('#clock').textContent = now.toLocaleTimeString('pt-BR');
 
-function refreshPanel(){
-  const now = new Date(); const current = getCurrentShift(now); updateHeader(current);
-  const people = getPlantaoPeople(current.key);
-  people.forEach(p=>{ p.isCoordenador = (p.plantaoKey==='coordenador' || (p.cargo||'').toLowerCase().includes('coordenador')); p.isSubcoordenador = (p.plantaoKey==='subcoordenador' || (p.cargo||'').toLowerCase().includes('subcoordenador')); });
-  people.sort((a,b)=>{ const pa = a.isCoordenador||a.isSubcoordenador ? 0 : 1; const pb = b.isCoordenador||b.isSubcoordenador ? 0 : 1; if(pa!==pb) return pa-pb; return (a.nome||'').localeCompare(b.nome||''); });
-  buildSlides(people); showSlide(0); startAutoRotate();
-}
+            // Badge
+            $('#shiftBadge').textContent = `Plantão ${shift.name}`;
 
-setInterval(()=>{ $('#nowLabel').textContent = new Date().toLocaleTimeString(); const now = new Date(); const current = getCurrentShift(now); const subtitleText = $('#subtitle').textContent || ''; const expected = current.end? `encerra em ${current.end.toLocaleString()}` : ''; if(!subtitleText.includes(expected)) refreshPanel(); },15000);
+            // Descrição
+            const endTime = shift.end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            $('#shiftDescription').textContent = `Plantão ${shift.name} • Encerra às ${endTime}`;
 
-/* start */
-fetchDataAndStart();
+            // Countdown
+            const remaining = shift.end - now;
+            const hours = Math.floor(remaining / 3600000);
+            const mins = Math.floor((remaining % 3600000) / 60000);
+            $('#countdown').textContent = `Encerra em ${hours}h ${mins}min`;
+        }
 
-/* tentar fullscreen */
-setTimeout(()=>{ try{ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen(); }catch(e){} },900);
+        /* ===== FETCH DATA ===== */
+        async function fetchData() {
+            try {
+                const url = new URL(API_URL);
+                url.searchParams.set('action', 'list');
+                url.searchParams.set('t', Date.now());
 
-</script>
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+
+                const json = await res.json();
+                const arr = Array.isArray(json) ? json : (json?.data || json?.items || []);
+
+                DATA = arr.map(r => {
+                    const plantaoRaw = String(r.plantao || r.plantão || '').trim().toLowerCase();
+                    
+                    let plantaoKey = '';
+                    let plantaoName = '';
+
+                    if (plantaoRaw.includes('alfa')) {
+                        plantaoKey = 'alfa';
+                        plantaoName = 'Alfa';
+                    } else if (plantaoRaw.includes('bravo')) {
+                        plantaoKey = 'bravo';
+                        plantaoName = 'Bravo';
+                    } else if (plantaoRaw.includes('charlie')) {
+                        plantaoKey = 'charlie';
+                        plantaoName = 'Charlie';
+                    } else if (plantaoRaw.includes('delta')) {
+                        plantaoKey = 'delta';
+                        plantaoName = 'Delta';
+                    } else if (plantaoRaw.includes('coordenador') && !plantaoRaw.includes('sub')) {
+                        plantaoKey = 'coordenador';
+                        plantaoName = 'Coordenador(a)';
+                    } else if (plantaoRaw.includes('sub')) {
+                        plantaoKey = 'subcoordenador';
+                        plantaoName = 'Subcoordenador(a)';
+                    }
+
+                    const photo = r.photo || r.photoBase64 || r.foto || '';
+                    let photoSrc = '';
+                    if (photo) {
+                        if (photo.startsWith('data:') || /^https?:/.test(photo)) {
+                            photoSrc = photo;
+                        } else {
+                            photoSrc = 'data:image/png;base64,' + photo;
+                        }
+                    }
+
+                    return {
+                        nome: r.nome || r.name || '',
+                        cargo: r.cargo || r.funcao || 'Brigadista',
+                        plantaoKey,
+                        plantaoName,
+                        photo: photoSrc,
+                        priority: plantaoKey === 'coordenador' ? 0 : plantaoKey === 'subcoordenador' ? 1 : 2
+                    };
+                });
+
+                console.log('✅ Dados carregados:', DATA.length, 'pessoas');
+                return true;
+
+            } catch (err) {
+                console.error('❌ Erro:', err);
+                $('#slideshow').innerHTML = `
+                    <div class="slide active">
+                        <div style="color:var(--gray);font-weight:700;font-size:20px;text-align:center">
+                            ❌ Erro ao carregar dados<br>
+                            <small style="font-weight:400;font-size:14px">${esc(err.message)}</small>
+                        </div>
+                    </div>
+                `;
+                return false;
+            }
+        }
+
+        /* ===== SLIDESHOW ===== */
+        function buildSlides() {
+            const shift = getCurrentShift();
+            const people = DATA.filter(p =>
+                p.plantaoKey === shift.key ||
+                p.plantaoKey === 'coordenador' ||
+                p.plantaoKey === 'subcoordenador'
+            ).sort((a, b) => a.priority - b.priority || a.nome.localeCompare(b.nome));
+
+            const slideshow = $('#slideshow');
+            const indicators = $('#indicators');
+
+            slideshow.innerHTML = '';
+            indicators.innerHTML = '';
+
+            if (people.length === 0) {
+                slideshow.innerHTML = `
+                    <div class="slide active">
+                        <div style="color:var(--gray);font-weight:700;font-size:24px">
+                            Nenhum brigadista no plantão atual
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            people.forEach((person, i) => {
+                // Slide
+                const slide = document.createElement('div');
+                slide.className = 'slide' + (i === 0 ? ' active' : '');
+                slide.innerHTML = `
+                    <div class="card">
+                        <div class="photo">
+                            ${person.photo
+                                ? `<img src="${person.photo}" alt="${esc(person.nome)}" onerror="this.parentElement.innerHTML='${esc(initials(person.nome))}'">` 
+                                : esc(initials(person.nome))
+                            }
+                        </div>
+                        <div class="info">
+                            <h2>${esc(person.nome)}</h2>
+                            <div class="role">${esc(person.cargo)}</div>
+                            <div class="badges">
+                                ${person.plantaoName ? `<span class="badge ${person.plantaoKey}">${esc(person.plantaoName)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                slideshow.appendChild(slide);
+
+                // Indicator
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                indicators.appendChild(dot);
+            });
+
+            startSlideshow();
+        }
+
+        function showSlide(index) {
+            const slides = Array.from($('#slideshow').children);
+            const dots = Array.from($('#indicators').children);
+
+            if (slides.length === 0) return;
+
+            const i = ((index % slides.length) + slides.length) % slides.length;
+
+            slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+            dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+
+            currentSlide = i;
+        }
+
+        function startSlideshow() {
+            clearInterval(slideTimer);
+            slideTimer = setInterval(() => showSlide(currentSlide + 1), SLIDE_DURATION);
+        }
+
+        /* ===== FULLSCREEN ===== */
+        $('#fullscreenBtn').onclick = () => {
+            const elem = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) elem.requestFullscreen();
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+                else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
+                else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        };
+
+        /* ===== INIT ===== */
+        async function init() {
+            const success = await fetchData();
+
+            if (success) {
+                buildSlides();
+                updateHeader();
+
+                setInterval(updateHeader, 1000);
+                setInterval(async () => {
+                    await fetchData();
+                    buildSlides();
+                }, 60000);
+            }
+
+            $('#loading').classList.add('hidden');
+        }
+
+        init();
+    </script>
 </body>
 </html>
